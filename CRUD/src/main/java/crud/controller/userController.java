@@ -25,15 +25,6 @@ public class userController {
         return "users";
     }
 
-//    @GetMapping("/{id}/updateUser")
-//    public String updateUser(@PathVariable("id") Long id, ModelMap model) {
-//     //   model.addAttribute("user", userService.getUserById(id));
-//        User user = userService.getUserById(id);
-//        userService.updateUser(user);
-//        model.addAttribute("user", user);
-//        return "update";
-//    }
-
     @GetMapping("/{id}/updateUser")
     public String updateUser(@PathVariable("id") Long id, ModelMap model) {
         model.addAttribute("user", userService.getUserById(id));
@@ -45,12 +36,6 @@ public class userController {
         userService.saveUser(user);
         return "redirect:/";
     }
-
-//    @PostMapping("/updateUser")
-//    public String updateUser(@ModelAttribute("user") User user) {
-//        userService.updateUser(user);
-//        return "redirect:/";
-//    }
 
     @PostMapping("/updateUser")
     public String updateUser(@ModelAttribute("user") User user) {
