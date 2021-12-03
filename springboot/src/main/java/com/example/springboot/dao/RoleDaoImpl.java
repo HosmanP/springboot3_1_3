@@ -2,31 +2,16 @@ package com.example.springboot.dao;
 
 
 import com.example.springboot.model.Role;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
 
-@Component
+@Repository
 public class RoleDaoImpl implements RoleDao{
     @PersistenceContext
     EntityManager entityManager;
-
-    @Override
-    public List<Role> getAll() {
-        return null;
-    }
-
-    @Override
-    public Role getById(long id) {
-        return null;
-    }
-
-    @Override
-    public Role getByName(String roleName) {
-        return null;
-    }
 
     @Override
     public Role save(Role role) {
@@ -35,12 +20,8 @@ public class RoleDaoImpl implements RoleDao{
     }
 
     @Override
-    public void delete(Role role) {
-
+    public Role findByRoleId(Long id) {
+        return entityManager.find(Role.class, id);
     }
 
-    @Override
-    public void update(Role role) {
-
-    }
 }

@@ -19,4 +19,10 @@ public class RoleServiceImpl implements RoleService{
     public Role saveRole(Role role) {
         return roleDao.save(role);
     }
+
+    @Override
+    @Transactional
+    public Role findByRoleId(Long id) {
+        return roleDao.findByRoleId(id);
+    }
 }

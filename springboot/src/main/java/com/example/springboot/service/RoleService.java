@@ -4,4 +4,8 @@ import com.example.springboot.model.Role;
 
 public interface RoleService {
     public Role saveRole(Role role);
+
+    public Role findByRoleId(Long id);
+
+
 }

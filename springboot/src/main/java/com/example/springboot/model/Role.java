@@ -1,12 +1,10 @@
 package com.example.springboot.model;
 
+import lombok.NonNull;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.core.GrantedAuthority;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "roles")
@@ -15,6 +13,9 @@ public class Role implements GrantedAuthority {
     @GeneratedValue(generator = "increment")
     @GenericGenerator(name = "increment", strategy = "increment")
     private Long id;
+
+    @NonNull
+    @Column(name = "role", unique = true)
     private String role;
 
     public Role() {
