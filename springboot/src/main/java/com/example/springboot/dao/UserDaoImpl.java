@@ -1,12 +1,9 @@
 package com.example.springboot.dao;
 
-
 import com.example.springboot.model.User;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import java.util.List;
 
 @Repository
@@ -15,9 +12,8 @@ public class UserDaoImpl implements UserDao {
     EntityManager entityManager;
 
     @Override
-    public User updateUser(User user) {
+    public void updateUser(User user) {
         entityManager.merge(user);
-        return user;
     }
 
     @Override
@@ -32,22 +28,22 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User saveUser(User user) {
+    public void saveUser(User user) {
         entityManager.persist(user);
-        return user;
     }
 
     @Override
     public List<User> getAllUsers() {
-        return entityManager.createQuery("FROM User", User.class)
-                .getResultList();
+        return entityManager.createQuery("SELECT u FROM User u", User.class).getResultList();
     }
 
     @Override
     public User getUserByName(String name) {
-        Query query = entityManager.createQuery("SELECT id FROM User WHERE name = :name");
-        query.setParameter("name", name);
-        Long id = (Long) query.getResultList().get(0);
-        return entityManager.find(User.class, id);
+        try {
+            return (User) entityManager.createQuery(
+                    "select u from User u where u.name = :name").setParameter("name", name).getSingleResult();
+        } catch (Exception e){
+            return null;
+        }
     }
 }

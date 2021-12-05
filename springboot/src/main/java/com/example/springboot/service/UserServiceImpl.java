@@ -1,29 +1,27 @@
 package com.example.springboot.service;
 
 import com.example.springboot.dao.UserDao;
-import com.example.springboot.model.Role;
 import com.example.springboot.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
 
 @Service
-public class UserServiceImpl implements UserService, UserDetailsService {
+public class UserServiceImpl implements UserService {
     UserDao userDao;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
     public UserServiceImpl(UserDao userDao) {
         this.userDao = userDao;
+    }
+
+    @Autowired
+    public void setbCryptPasswordEncoder(BCryptPasswordEncoder bCryptPasswordEncoder) {
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     @Override
@@ -34,14 +32,20 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     @Transactional
-    public User saveUser(User user) {
-        return userDao.saveUser(user);
+    public void saveUser(User user) {
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        userDao.saveUser(user);
     }
 
     @Override
     @Transactional
-    public User updateUser(User user) {
-        return userDao.updateUser(user);
+    public void updateUser(User user, Long id) {
+        User userOld = getUserById(id);
+        if (userOld == null || !userOld.getPassword().equals(user.getPassword())) {
+            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        }
+        user.setId(id);
+        userDao.updateUser(user);
     }
 
     @Override
@@ -61,25 +65,4 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public void removeUser(Long id) {
         userDao.removeUser(id);
     }
-
-    @Override
-    @Transactional
-    public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
-        return userDao.getUserByName(name);
-    }
-
-    private List<GrantedAuthority> getUserAuthority(Set<Role> userRoles) {
-        Set<GrantedAuthority> roles = new HashSet<GrantedAuthority>();
-        for (Role role : userRoles) {
-            roles.add(new SimpleGrantedAuthority(role.getRole()));
-        }
-        List<GrantedAuthority> grantedAuthorities = new ArrayList<>(roles);
-        return grantedAuthorities;
-    }
-
-    private UserDetails buildUserForAuthentication(User user, List<GrantedAuthority> authorities) {
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
-    }
-
-
 }
