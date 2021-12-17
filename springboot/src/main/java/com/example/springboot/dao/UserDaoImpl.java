@@ -17,7 +17,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User getUserById(Long id) {
+    public User getUser(Long id) {
         return entityManager.find(User.class, id);
     }
 
@@ -38,7 +38,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User getUserByName(String name) {
+    public User findByUserName(String name) {
         try {
             return (User) entityManager.createQuery(
                     "select u from User u where u.name = :name").setParameter("name", name).getSingleResult();

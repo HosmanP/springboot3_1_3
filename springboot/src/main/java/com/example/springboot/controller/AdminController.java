@@ -5,16 +5,16 @@ import com.example.springboot.model.User;
 import com.example.springboot.service.RoleService;
 import com.example.springboot.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Controller
-@RequestMapping("/admin/")
+
+@RestController
+@RequestMapping(value = "")
 public class AdminController {
 
     private UserService userService;
@@ -26,59 +26,39 @@ public class AdminController {
         this.roleService = roleService;
     }
 
-    @GetMapping( "")
-    public String getAllUsers(ModelMap model) {
-        List<User> listUsers = userService.getAllUsers();
-        Set<Role> listRoles = roleService.getAllRoles();
-        model.addAttribute("allUser", listUsers);
-        model.addAttribute("allRoles", listRoles);
-        return "allUsers";
+    @GetMapping(value = "getAll")
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.getAllUsers();
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    @GetMapping("addNewUser")
-    public String addNewUser(ModelMap model) {
-        model.addAttribute("user", new User());
-        Set<Role> listRoles = roleService.getAllRoles();
-        model.addAttribute("allRoles", listRoles);
-        return "saveUser";
-    }
-
-    @PostMapping("saveUser")
-    public String saveUser(@ModelAttribute("user") User user, @RequestParam("roles") String[] roles) {
-        Set<Role> roleSet = new HashSet<>();
-        for (String role : roles) {
-            roleSet.add(roleService.findByRoleName(role));
-        }
-        user.setRoles(roleSet);
+    @PostMapping(value = "save")
+    public ResponseEntity<Void> saveUser(@RequestBody User user) {
+        Set<Role> userRole = user.getRoles();
+        user.setRoles(userRole);
         userService.saveUser(user);
-        return "redirect:/admin/";
+        return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
-    @PatchMapping("edit/{id}")
-    public String edit(@ModelAttribute("user") User user, @RequestParam("roles") String[] roles) {
-        Set<Role> roleSet = new HashSet<>();
-        for (String role : roles) {
-            roleSet.add(roleService.findByRoleName(role));
+    @GetMapping("/find/{id}")
+    public ResponseEntity<User> findById(@PathVariable("id") long id) {
+        try {
+            return new ResponseEntity<>(userService.getUser(id), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        user.setRoles(roleSet);
-        userService.saveUser(user);
-        return "redirect:/admin/";
     }
 
-    @DeleteMapping("delete/{id}")
-    public String deleteUser(@PathVariable("id") Long id) {
+    @PatchMapping(value = "edit")
+    public ResponseEntity<Void> edit(@RequestBody User user) {
+        userService.saveUser(user);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
+
+    @DeleteMapping(value = "delete/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable("id") Long id) {
         userService.removeUser(id);
-        return "redirect:/admin/";
-    }
-
-    @PutMapping("updateUser/{id}")
-    public  String updateUser(@PathVariable("id") Long id,@ModelAttribute("user") User user, @RequestParam("roles") String[] roles) {
-        Set<Role> roleSet = new HashSet<>();
-        for (String role : roles) {
-            roleSet.add(roleService.findByRoleName(role));
-        }
-        user.setRoles(roleSet);
-        userService.updateUser(user,id);
-        return "redirect:/admin/";
+        return new ResponseEntity<Void>(HttpStatus.OK);
     }
 }
+
